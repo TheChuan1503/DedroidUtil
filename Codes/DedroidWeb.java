@@ -15,6 +15,7 @@ import android.os.Handler;
 import android.os.Looper;
 import java.time.LocalDateTime;
 import android.view.View;
+import java.io.IOException;
 
 public class DedroidWeb {
     static public class WebPage {
@@ -39,7 +40,23 @@ public class DedroidWeb {
                 act.setContentView(view);
             }
         }
-        private void webPage(Activity act, String url) {
+        public WebPage(Activity act, String url, String localHtml) {
+            if (DedroidNetwork.isNetworkAvailable(act)) {
+                webPage(act, url);
+            } else {
+                webPage(act, localHtml);
+            }
+        }
+        public WebPage(Activity act, String url, String localHtml, String fileName) {
+            boolean t=!DedroidFile.exists(fileName);
+
+            if (DedroidNetwork.isNetworkAvailable(act) && t) {
+                webPage(act, url);
+            } else {
+                webPage(act, localHtml);
+            }
+        }
+        private void webPage(final Activity act, String url) {
             _activity = act;
             defaultUrl = Dedroid.strApi(_activity, url);
             this.url = defaultUrl;
@@ -47,6 +64,19 @@ public class DedroidWeb {
             webView.setWebViewClient(new WebViewClient() {
                     @Override
                     public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                        if (url.substring(0, 10).equals("dedroid://")) {
+                            String s=url.substring(10);
+                            if (s.substring(0, 13).equals("networkDialog")) {
+                                DedroidDialog.networkDialog(act, act, s.substring(14));
+                                return true;
+                            }
+                            if (s.substring(0, 6).equals("finish")) {
+                                act.finishAndRemoveTask();
+                                return true;
+                            }
+                            return true;
+                        }
+
                         view.loadUrl(url);
                         return true;
                     }
@@ -160,8 +190,10 @@ public class DedroidWeb {
             prompt(symbo, title, null, callback, defaultText);
         }
         @JavascriptInterface
-        public void networkDialog(String url) {
+        public void networkDialog(final String url) {
+
             DedroidDialog.networkDialog(_context, _activity, url);
+
         }
         @JavascriptInterface
         public boolean putString(String name, String key, String value) {
@@ -214,19 +246,34 @@ public class DedroidWeb {
         }
         @JavascriptInterface
         public String strApi(String str) {
-            return Dedroid.strApi(_context,str);
+            return Dedroid.strApi(_context, str);
         }
         @JavascriptInterface
-        public void finish() {
-            _activity.finish();
+        public void mkdir(String str) {
+            DedroidFile.mkdir(str);
         }
         @JavascriptInterface
-        public void finish(boolean i) {
-            if(i){
+        public void mkfile(String str,String defc) {
+            DedroidFile.mkfile(str,defc);
+        }
+        @JavascriptInterface
+        public String readFile(String str) throws IOException {
+            return DedroidFile.read(str);
+        }
+        @JavascriptInterface
+        public void delFile(String str) {
+            DedroidFile.del(str);
+        }
+        @JavascriptInterface
+        public void writeFile(String str,String cont) throws IOException {
+            DedroidFile.write(str,cont);
+        }
+        @JavascriptInterface
+        public void finish(final boolean i) {
+            if (i) {
                 _activity.finishAndRemoveTask();
-            }
-            else{
-                finish();
+            } else {
+                _activity.finish();
             }
         }
     }

@@ -16,20 +16,12 @@ public class DedroidFile {
     
     final public static String EXTERN_STO_PATH=Environment.getExternalStorageDirectory().getAbsolutePath();
 
-    public static boolean mkdir(String path) {
-        boolean r=false;
+    public static void mkdir(String path) {
         File file = new File(path); //以某路径实例化一个File对象
-        if (!file.exists()) {
-            r = file.mkdirs();
-        }
-        return r;
+        file.mkdirs();
     }
-    public static boolean mkdir(File file) {
-        boolean r=false;
-        if (!file.exists()) {
-            r = file.mkdirs();
-        }
-        return r;
+    public static void mkdir(File file) {
+        file.mkdirs();
     }
     public static boolean mkfile(String fileName,String defaultContent) {
         boolean r=false;
@@ -67,23 +59,32 @@ public class DedroidFile {
             return contentBuilder.toString().trim();
         }
     }
-    public static void copy(File source, File dest) throws IOException {    
-        InputStream input = null;    
-        OutputStream output = null;    
-        try {
-            input = new FileInputStream(source);
-            output = new FileOutputStream(dest);        
-            byte[] buf = new byte[1024];        
-            int bytesRead;        
-            while ((bytesRead = input.read(buf)) > 0) {
-                output.write(buf, 0, bytesRead);
-            }
-        } finally {
-            input.close();
-            output.close();
+    public static boolean copy(String srcPath, String destPath) throws IOException {
+        if(!exists(srcPath)) return false;
+        File srcFile = new File(srcPath);
+        if(!exists(destPath)){
+            mkdir(destPath);
         }
+        File destFile = new File(destPath);
+
+        FileInputStream inStream = new FileInputStream(srcFile);
+        FileOutputStream outStream = new FileOutputStream(destFile);
+        byte[] buffer = new byte[1024];
+        int length;
+
+        while ((length = inStream.read(buffer)) > 0) {
+            outStream.write(buffer, 0, length);
+        }
+
+        inStream.close();
+        outStream.close();
+        return true;
     }
+    
     public static boolean exists(String fileName){
         return new File(fileName).exists();
+    }
+    public static void del(String path){
+        new File(path).delete();
     }
 }

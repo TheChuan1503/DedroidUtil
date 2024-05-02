@@ -62,7 +62,7 @@ public class DedroidDialog {
         et.setText(dt);
         PromptView.addView(et);
         PromptView.setLayoutParams(vlp);
-        PromptView.setPadding(48, 0, 48, 0);
+        PromptView.setPadding(40, 0, 40, 0);
         return PromptView;
     }
     public interface PromptCallback {
@@ -411,7 +411,13 @@ public class DedroidDialog {
                                 }
                                 break;
                             case "toast":
-                                DedroidToast.toast(context,content);
+                                activity.runOnUiThread(new Runnable(){
+                                        @Override
+                                        public void run() {
+                                            DedroidToast.toast(context,content);
+                                        }
+                                    });
+                                
                                 break;
                             case "htmlalert":
                                 

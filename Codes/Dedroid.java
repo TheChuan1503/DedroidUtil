@@ -13,15 +13,17 @@ import java.util.UUID;
 import android.os.Build;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Dedroid {
-    
-    final static int UtilVersion=4;
-    
-    static public int getVersion(){
+
+    final static int UtilVersion=6;
+
+    static public int getVersion() {
         return UtilVersion;
     }
-    static public void launchApp(Context ctx,String pkg) {
+    static public void launchApp(Context ctx, String pkg) {
         PackageManager packageManager = ctx.getPackageManager();
         Intent it = packageManager.getLaunchIntentForPackage(pkg);
         ctx.startActivity(it);
@@ -37,7 +39,7 @@ public class Dedroid {
         }
         return true;
     }
-    static public String strApi(Context ctx,String oldStr){
+    static public String strApi(Context ctx, String oldStr) {
         long unix=System.currentTimeMillis();
         /*Drawable iconDrawable=null;
          // 获取Drawable类型的图标资源
@@ -63,8 +65,8 @@ public class Dedroid {
                 .replace("{util.ver}", "" + Dedroid.UtilVersion)
                 .replace("{app.package}", ctx.getPackageName())
                 .replace("{app.name}", ctx.getPackageManager().getApplicationLabel(ctx.getPackageManager().getApplicationInfo(ctx.getPackageName(), 0)))
-                .replace("{app.vername}",ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionName)
-                .replace("{app.ver}",""+ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionCode)
+                .replace("{app.vername}", ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionName)
+                .replace("{app.ver}", "" + ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionCode)
                 //.replace("{app.icon}",base64Icon)
                 .replace("{time.unix}", "" + unix);
             Pattern pattern = Pattern.compile("\\{is_app_installed/(.*?)\\}");
@@ -74,7 +76,7 @@ public class Dedroid {
                 packageName = matcher.group(1);
 
                 // 调用方法并获取结果
-                boolean isInstalled = Dedroid.isAppInstalled(ctx,packageName);
+                boolean isInstalled = Dedroid.isAppInstalled(ctx, packageName);
 
                 // 根据结果替换字符串
                 String replacement = isInstalled ? "true" : "false";
@@ -108,5 +110,34 @@ public class Dedroid {
         }
         //使用硬件信息拼凑出来的15位号码
         return new UUID(m_szDevIDShort.hashCode(), serial.hashCode()).toString();
+    }
+    public static void startActivity(Context ctx, String name) throws ClassNotFoundException {
+        Intent intent = new Intent(ctx, Class.forName(name));
+        ctx.startActivity(intent);
+    }
+    public static void startActivity(Context ctx, Class<?> cls) {
+        Intent intent = new Intent(ctx, cls);
+        ctx.startActivity(intent);
+    }
+    public static void requestPermission(Activity activity, String[] permissions) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            List<String> permissionsToRequest = new ArrayList<>();
+
+            for (String permission : permissions) {
+                if (activity.checkSelfPermission(permission)
+                    != PackageManager.PERMISSION_GRANTED) {
+                    permissionsToRequest.add(permission);
+                }
+            }
+
+            if (!permissionsToRequest.isEmpty()) {
+                activity.requestPermissions(
+                    permissionsToRequest.toArray(new String[0]),
+                    1503);
+            }
+        }
+    }
+    public static void requestPermission(Activity activity, String permission) {
+        requestPermission(activity,new String[]{permission});
     }
 }
