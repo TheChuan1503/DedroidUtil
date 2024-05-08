@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import android.os.Environment;
+import android.content.Context;
 
 public class DedroidFile {
     
@@ -22,6 +23,12 @@ public class DedroidFile {
     }
     public static void mkdir(File file) {
         file.mkdirs();
+    }
+    public static File[] list(File f){
+        return f.listFiles();
+    }
+    public static File[] list(String f){
+        return new File(f).listFiles();
     }
     public static boolean mkfile(String fileName,String defaultContent) {
         boolean r=false;
@@ -49,6 +56,27 @@ public class DedroidFile {
             bufferedWriter.write(content); 
         } 
     }
+    public static void write(String filePath,byte[] data) throws IOException {
+        if (data == null || filePath == null || filePath.isEmpty()) {
+            throw new IllegalArgumentException("Data or filePath cannot be null/empty.");
+        }
+
+        File file = new File(filePath);
+        File parentDir = file.getParentFile();
+
+        // 确保父目录存在
+        if (!parentDir.exists()) {
+            if (!parentDir.mkdirs()) {
+                throw new IOException("Failed to create parent directories for " + filePath);
+            }
+        }
+
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            fos.write(data);
+            fos.flush();
+        }
+    }
+    
     public static String read(String filePath) throws IOException {
         StringBuilder contentBuilder = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
@@ -59,27 +87,36 @@ public class DedroidFile {
             return contentBuilder.toString().trim();
         }
     }
-    public static boolean copy(String srcPath, String destPath) throws IOException {
-        if(!exists(srcPath)) return false;
-        File srcFile = new File(srcPath);
-        if(!exists(destPath)){
-            mkdir(destPath);
+    
+    public static void copy(String sourcePath, String targetPath) {
+        try {
+            // 检查源文件是否存在
+            File sourceFile = new File(sourcePath);
+            if (sourceFile.exists()) {
+                // 创建文件输入流对象
+                FileInputStream inputFile = new FileInputStream(sourceFile);
+                // 创建文件输出流对象
+                FileOutputStream outputFile = new FileOutputStream(new File(targetPath));
+
+                // 定义缓冲区
+                byte[] buffer = new byte[1444];
+
+                // 循环读取并写入直到文件结束
+                int bytesRead;
+                while ((bytesRead = inputFile.read(buffer)) != -1) {
+                    outputFile.write(buffer, 0, bytesRead);
+                }
+
+                // 关闭流
+                inputFile.close();
+                outputFile.close(); // 添加关闭outputFile
+            }
+        } catch (Exception e) {
+            // 打印异常堆栈信息
+            e.printStackTrace();
         }
-        File destFile = new File(destPath);
-
-        FileInputStream inStream = new FileInputStream(srcFile);
-        FileOutputStream outStream = new FileOutputStream(destFile);
-        byte[] buffer = new byte[1024];
-        int length;
-
-        while ((length = inStream.read(buffer)) > 0) {
-            outStream.write(buffer, 0, length);
-        }
-
-        inStream.close();
-        outStream.close();
-        return true;
     }
+    
     
     public static boolean exists(String fileName){
         return new File(fileName).exists();

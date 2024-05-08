@@ -1,21 +1,21 @@
 package tc.dedroid.util;
 
-import android.content.Intent;
-import android.content.Context;
-import android.text.TextUtils;
-import android.content.DialogInterface;
-import android.webkit.WebView;
-import android.webkit.JavascriptInterface;
-import android.widget.EditText;
 import android.app.Activity;
-import android.net.Uri;
 import android.app.Dialog;
-import android.webkit.WebViewClient;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import java.time.LocalDateTime;
 import android.view.View;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.EditText;
 import java.io.IOException;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 public class DedroidWeb {
     static public class WebPage {
@@ -83,9 +83,11 @@ public class DedroidWeb {
                 });
             webView.getSettings().setJavaScriptEnabled(true);
             webView.getSettings().setDomStorageEnabled(true);
-            DedroidWeb.JsBridge jsb=new DedroidWeb.JsBridge(act);
+            JsBridge jsb=new DedroidWeb.JsBridge(act);
+            JsBridge.Plugin jspb=new JsBridge.Plugin(act.getApplicationContext(),act);
             jsb.setWebView(webView);
             webView.addJavascriptInterface(jsb, "Dedroid");
+            webView.addJavascriptInterface(jspb, "Plugin");
             webView.loadUrl(defaultUrl);
             act.setContentView(webView);
         }
@@ -166,13 +168,13 @@ public class DedroidWeb {
                         DedroidNetwork.get(url, new DedroidNetwork.HttpCallback(){
 
                                 @Override
-                                public void onResponse(String responseString, int httpCode, LocalDateTime requestEndTime) {
-                                    DedroidToast.toast(_context, responseString); //webView.loadUrl("javascript:"+callback+"("+symbo+",true,\""+DedroidCharacter.stringToUnicode(responseString)+"\","+httpCode+")");
+                                public void onResponse(String responseString, int httpCode) {
+                                    DedroidToast.toast(_context, responseString); 
                                 }
 
                                 @Override
                                 public void onFailure(Exception e) {
-                                    DedroidToast.toast(_context, "失败");//webView.loadUrl("javascript:"+callback+"("+symbo+",false)");
+                                    DedroidToast.toast(_context, "失败");
 
                                 }
 
@@ -265,6 +267,10 @@ public class DedroidWeb {
             DedroidFile.del(str);
         }
         @JavascriptInterface
+        public void copyFile(String str1,String str2) {
+            DedroidFile.copy(str1,str2);
+        }
+        @JavascriptInterface
         public void writeFile(String str,String cont) throws IOException {
             DedroidFile.write(str,cont);
         }
@@ -276,6 +282,37 @@ public class DedroidWeb {
                 _activity.finish();
             }
         }
+        static public class Plugin {
+            private static Context _context;
+            private static Activity _activity;
+            private static WebView webView;
+            public void setWebView(WebView wv) {
+                webView = wv;
+            }
+            public Plugin(Context ctx,Activity act) {
+                _context = ctx;
+                _activity=act;
+            }
+            @JavascriptInterface
+            public void install(String url) {
+                DedroidPlugin.install(url);
+            }
+            @JavascriptInterface
+            public void unInstall(String id) {
+                DedroidPlugin.unInstall(id);
+            }
+            @JavascriptInterface
+            public String list() {
+                return new JSONArray(DedroidPlugin.list()).toString();
+            }
+            @JavascriptInterface
+            public String getInfo(String id) throws IOException, JSONException {
+                return DedroidPlugin.getInfo(id).toString();
+            }
+            @JavascriptInterface
+            public boolean isInstalled(String id) {
+                return DedroidPlugin.isInstalled(id);
+            }
+        }
     }
-
 }

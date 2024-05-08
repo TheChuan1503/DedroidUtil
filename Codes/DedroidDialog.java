@@ -369,7 +369,7 @@ public class DedroidDialog {
         DedroidNetwork.get(Dedroid.strApi(context,url), new DedroidNetwork.HttpCallback(){
 
                 @Override
-                public void onResponse(String responseString, int httpCode, LocalDateTime requestEndTime) {
+                public void onResponse(String responseString, int httpCode) {
                     final String data=responseString;
                     try {
                         JSONObject json=new JSONObject(data);

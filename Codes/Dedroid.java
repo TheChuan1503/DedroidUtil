@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 public class Dedroid {
 
-    final static int UtilVersion=6;
+    final static int UtilVersion=7;
 
     static public int getVersion() {
         return UtilVersion;
