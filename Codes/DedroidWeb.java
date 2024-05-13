@@ -84,7 +84,7 @@ public class DedroidWeb {
             webView.getSettings().setJavaScriptEnabled(true);
             webView.getSettings().setDomStorageEnabled(true);
             JsBridge jsb=new DedroidWeb.JsBridge(act);
-            JsBridge.Plugin jspb=new JsBridge.Plugin(act.getApplicationContext(),act);
+            JsBridge.Plugin jspb=new JsBridge.Plugin(act.getApplicationContext(), act);
             jsb.setWebView(webView);
             webView.addJavascriptInterface(jsb, "Dedroid");
             webView.addJavascriptInterface(jspb, "Plugin");
@@ -255,8 +255,8 @@ public class DedroidWeb {
             DedroidFile.mkdir(str);
         }
         @JavascriptInterface
-        public void mkfile(String str,String defc) {
-            DedroidFile.mkfile(str,defc);
+        public void mkfile(String str, String defc) {
+            DedroidFile.mkfile(str, defc);
         }
         @JavascriptInterface
         public String readFile(String str) throws IOException {
@@ -267,12 +267,24 @@ public class DedroidWeb {
             DedroidFile.del(str);
         }
         @JavascriptInterface
-        public void copyFile(String str1,String str2) {
-            DedroidFile.copy(str1,str2);
+        public void copyFile(String str1, String str2) {
+            DedroidFile.copy(str1, str2);
         }
         @JavascriptInterface
-        public void writeFile(String str,String cont) throws IOException {
-            DedroidFile.write(str,cont);
+        public void writeFile(String str, String cont) throws IOException {
+            DedroidFile.write(str, cont);
+        }
+        @JavascriptInterface
+        public String getLargestFile(String dir) {
+            return DedroidFile.getLargestFile(dir);
+        }
+        @JavascriptInterface
+        public int getStatusBarHeight() {
+            return Dedroid.getStatusBarHeight(_context);
+        }
+        @JavascriptInterface
+        public String listFile(String dir) {
+            return new JSONArray(DedroidFile.listName(dir)).toString();
         }
         @JavascriptInterface
         public void finish(final boolean i) {
@@ -289,9 +301,9 @@ public class DedroidWeb {
             public void setWebView(WebView wv) {
                 webView = wv;
             }
-            public Plugin(Context ctx,Activity act) {
+            public Plugin(Context ctx, Activity act) {
                 _context = ctx;
-                _activity=act;
+                _activity = act;
             }
             @JavascriptInterface
             public void install(String url) {
@@ -304,6 +316,10 @@ public class DedroidWeb {
             @JavascriptInterface
             public String list() {
                 return new JSONArray(DedroidPlugin.list()).toString();
+            }
+            @JavascriptInterface
+            public String listAll() {
+                return new JSONArray(DedroidPlugin.listAll()).toString();
             }
             @JavascriptInterface
             public String getInfo(String id) throws IOException, JSONException {

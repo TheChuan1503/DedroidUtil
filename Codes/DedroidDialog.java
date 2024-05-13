@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 public class DedroidDialog {
-    
+
     final static int UtilVersion=Dedroid.getVersion();
     static Context _context=null;
     static Activity _activity=null;
@@ -173,9 +173,9 @@ public class DedroidDialog {
             .create();
         dialog.show();
     }
-    static public void web(final Context context,final Activity activity ,String title, String PositiveButton,String PositiveButtonCmd, String NegativeButton,String NegativeButtonCmd, String NeutralButton,String NeutralButtonCmd, String url, boolean Cancelable) {
-        _context=context;
-        _activity=activity;
+    static public void web(final Context context, final Activity activity , String title, String PositiveButton, String PositiveButtonCmd, String NegativeButton, String NegativeButtonCmd, String NeutralButton, String NeutralButtonCmd, String url, boolean Cancelable) {
+        _context = context;
+        _activity = activity;
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(   
             LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT); 
         LinearLayout PromptView = new LinearLayout(context); 
@@ -201,23 +201,23 @@ public class DedroidDialog {
         wv.getSettings().setDomStorageEnabled(true);
         DedroidWeb.JsBridge jsb=new DedroidWeb.JsBridge(context);
         jsb.setWebView(wv);
-        
+
         PromptView.addView(wv);
         PromptView.setLayoutParams(vlp);
         //PromptView.setPadding(56, 48, 56, 0);
         AlertDialog dialog = new AlertDialog.Builder(context)
             .setTitle(title)
             .setView(PromptView)
-            .setPositiveButton(PositiveButton, getNetworkDialogOnClick(context,activity,PositiveButtonCmd))
-            .setNegativeButton(NegativeButton, getNetworkDialogOnClick(context,activity,NegativeButtonCmd))
-            .setNeutralButton(NeutralButton, getNetworkDialogOnClick(context,activity,NeutralButtonCmd))
+            .setPositiveButton(PositiveButton, getNetworkDialogOnClick(context, activity, PositiveButtonCmd))
+            .setNegativeButton(NegativeButton, getNetworkDialogOnClick(context, activity, NegativeButtonCmd))
+            .setNeutralButton(NeutralButton, getNetworkDialogOnClick(context, activity, NeutralButtonCmd))
             .setCancelable(Cancelable)
             .create();
         jsb.setDialog(dialog);
         jsb.setActivity(activity);
         wv.addJavascriptInterface(jsb, "nativeApi");
         wv.addJavascriptInterface(jsb, "Dedroid");
-        wv.loadUrl(Dedroid.strApi(context,url));
+        wv.loadUrl(Dedroid.strApi(context, url));
         dialog.show();
     }
     static public void confirm(Context context, String Title, String Content, boolean Cancelable, DialogInterface.OnClickListener OnClick) {
@@ -364,9 +364,9 @@ public class DedroidDialog {
         return dialog;
     }
     static public void networkDialog(final Context context, final Activity activity, String url) {
-        _context=context;
-        _activity=activity;
-        DedroidNetwork.get(Dedroid.strApi(context,url), new DedroidNetwork.HttpCallback(){
+        _context = context;
+        _activity = activity;
+        DedroidNetwork.get(Dedroid.strApi(context, url), new DedroidNetwork.HttpCallback(){
 
                 @Override
                 public void onResponse(String responseString, int httpCode) {
@@ -374,24 +374,24 @@ public class DedroidDialog {
                     try {
                         JSONObject json=new JSONObject(data);
                         String type=json.getString("type");
-                        
+
                         final JSONObject PositiveButton=json.getJSONObject("PositiveButton");
                         final JSONObject NegativeButton=json.getJSONObject("NegativeButton");
                         final JSONObject NeutralButton=json.getJSONObject("NeutralButton");
                         final String pb_txt=PositiveButton.getString("text");
                         final String nb_txt=NegativeButton.getString("text");
                         final String nb_txt2=NeutralButton.getString("text");
-                        final String pb_cmd=Dedroid.strApi(context,PositiveButton.getString("cmd"));
-                        final String nb_cmd=Dedroid.strApi(context,NegativeButton.getString("cmd"));
-                        final String nb_cmd2=Dedroid.strApi(context,NeutralButton.getString("cmd"));
-                        final String title=Dedroid.strApi(context,json.getString("title"));
-                        final String content=Dedroid.strApi(context,json.getString("content"));
+                        final String pb_cmd=Dedroid.strApi(context, PositiveButton.getString("cmd"));
+                        final String nb_cmd=Dedroid.strApi(context, NegativeButton.getString("cmd"));
+                        final String nb_cmd2=Dedroid.strApi(context, NeutralButton.getString("cmd"));
+                        final String title=Dedroid.strApi(context, json.getString("title"));
+                        final String content=Dedroid.strApi(context, json.getString("content"));
                         final Boolean cancelable=json.getBoolean("cancelable");
                         final String HTML=json.getString("html");
 
                         switch (type.toLowerCase()) {
                             case "alert":
-                                
+
 
                                 if (!title.equals("")) {
                                     activity.runOnUiThread(new Runnable(){
@@ -414,13 +414,13 @@ public class DedroidDialog {
                                 activity.runOnUiThread(new Runnable(){
                                         @Override
                                         public void run() {
-                                            DedroidToast.toast(context,content);
+                                            DedroidToast.toast(activity, content);
                                         }
                                     });
-                                
+
                                 break;
                             case "htmlalert":
-                                
+
 
                                 if (!title.equals("")) {
                                     activity.runOnUiThread(new Runnable(){
@@ -441,25 +441,25 @@ public class DedroidDialog {
                                 break;
                             case "html":
                                 activity.runOnUiThread(new Runnable(){
-                                            @Override
-                                            public void run() {
-                                                DedroidDialog.web(context,activity , title, pb_txt,pb_cmd, nb_txt,nb_cmd, nb_txt2,nb_cmd2, "data:text/html,"+HTML, cancelable);
-                                            }
-                                        });
-                                
+                                        @Override
+                                        public void run() {
+                                            DedroidDialog.web(context, activity , title, pb_txt, pb_cmd, nb_txt, nb_cmd, nb_txt2, nb_cmd2, "data:text/html," + HTML, cancelable);
+                                        }
+                                    });
+
                                 break;
                             case "web":
                                 final String url=json.getString("url");
                                 activity.runOnUiThread(new Runnable(){
                                         @Override
                                         public void run() {
-                                            DedroidDialog.web(context, activity, title, pb_txt,pb_cmd, nb_txt,nb_cmd, nb_txt2,nb_cmd2, url, cancelable);
+                                            DedroidDialog.web(context, activity, title, pb_txt, pb_cmd, nb_txt, nb_cmd, nb_txt2, nb_cmd2, url, cancelable);
                                         }
                                     });
 
                                 break;
                             case "custom":
-                                
+
 
                                 activity.runOnUiThread(new Runnable(){
                                         @Override
@@ -474,7 +474,7 @@ public class DedroidDialog {
                                                 .setNegativeButton(nb_txt, getNetworkDialogOnClick(context, activity, nb_cmd))
                                                 .create()
                                                 .show();
-                                            
+
                                         }
                                     });
 
@@ -519,7 +519,7 @@ public class DedroidDialog {
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    networkDialog(context,activity,str.substring(14));
+                    networkDialog(context, activity, str.substring(14));
                 }
 
             };
@@ -541,12 +541,12 @@ public class DedroidDialog {
         }
         return null;
     }
-    
+
     static public AlertDialog.Builder emptyDialog(Context context) {
         AlertDialog.Builder dialog = new AlertDialog.Builder(context);
         return dialog;
     }
-    
-    
-    
+
+
+
 }

@@ -15,10 +15,12 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.List;
 import java.util.ArrayList;
+import android.graphics.Rect;
+import android.view.Window;
 
 public class Dedroid {
 
-    final static int UtilVersion=7;
+    final private static int UtilVersion=8;
 
     static public int getVersion() {
         return UtilVersion;
@@ -139,5 +141,11 @@ public class Dedroid {
     }
     public static void requestPermission(Activity activity, String permission) {
         requestPermission(activity,new String[]{permission});
+    }
+    public static int getStatusBarHeight(Context context) {
+        Rect rectangle = new Rect();
+        Window window = ((Activity) context).getWindow();
+        window.getDecorView().getWindowVisibleDisplayFrame(rectangle);
+        return rectangle.top;
     }
 }

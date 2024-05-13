@@ -37,6 +37,14 @@ public class DedroidPlugin {
         }
         return r;
     }
+    public static List<String> listAll(){
+        List<String> r=new ArrayList<>();
+        File[] d=DedroidFile.list(path);
+        for(int i=0;i<d.length;i++){
+                r.add(d[i].getName());
+        }
+        return r;
+    }
     public static JSONObject getInfo(String pluginId) throws IOException, JSONException{
         if (isInstalled(pluginId)){
             return new JSONObject(DedroidFile.read(path+"/"+pluginId+"/manifest.json"));
@@ -113,7 +121,7 @@ public class DedroidPlugin {
             }
         }
     }
-    public void loadDebug(Context context, Activity activity) {
+    private void loadDebug(Context context, Activity activity) {
         try {
             // 创建DexClassLoader实例
             DexClassLoader dexClassLoader = new DexClassLoader(

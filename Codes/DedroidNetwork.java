@@ -10,10 +10,49 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import android.os.Handler;
+import android.os.Looper;
+import android.app.Activity;
+import java.io.IOException;
 
 
 
 public class DedroidNetwork {
+
+    public static class onChange {
+        private boolean lastStatu;
+        private boolean nowStatu;
+        public onChange(final Activity ctx, final onChangeCallback run,final boolean onUi) {
+
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable(){
+
+                    @Override
+                    public void run() {
+                        nowStatu = isNetworkAvailable((ctx));
+                        if (lastStatu != nowStatu) {
+                            lastStatu = nowStatu;
+                            if(onUi){
+                                ctx.runOnUiThread(new Runnable(){
+
+                                        @Override
+                                        public void run() {
+                                            run.onChange(nowStatu);
+                                        }
+                                        
+                                    
+                                });
+                            }
+                            else run.onChange(nowStatu);
+                        }
+                        lastStatu = nowStatu;
+                        new Handler(Looper.getMainLooper()).postDelayed(this, 1000);
+                    }
+                },0);
+        }
+        public onChange(final Activity ctx, final onChangeCallback run) {
+            new onChange(ctx,run,false);
+        }
+    }
 
     public static interface HttpCallback {
         void onResponse(String responseString, int httpCode);
@@ -23,8 +62,11 @@ public class DedroidNetwork {
         void onResponse(byte[] data, int httpCode);
         void onFailure(Exception e);
     }
+    public static interface onChangeCallback {
+        void onChange(boolean state);
+    }
 
-    public static void get(final String urlStr, final HttpCallback callback,final int timeout) {
+    public static void get(final String urlStr, final HttpCallback callback, final int timeout) {
         new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -103,12 +145,29 @@ public class DedroidNetwork {
                 }
             }).start();
     }
-    
-    public static void get(String url,HttpCallback callback){
-        get(url,callback,10000);
+
+    public static void get(String url, HttpCallback callback) {
+        get(url, callback, 10000);
     }
-    public static void get(String url,HttpByteCallback callback){
-        get(url,callback,10000);
+    public static void get(String url, HttpByteCallback callback) {
+        get(url, callback, 10000);
+    }
+    public static void download(String url, final String localFilePath) {
+        get(url, new HttpByteCallback(){
+
+                @Override
+                public void onResponse(byte[] data, int httpCode) {
+                    try {
+                        DedroidFile.write(localFilePath, data);
+                    } catch (IOException e) {}
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                }
+                
+            
+        }, 999999999);
     }
 
     public static boolean isNetworkAvailable(Context context) {
