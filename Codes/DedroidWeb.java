@@ -16,6 +16,11 @@ import android.widget.EditText;
 import java.io.IOException;
 import org.json.JSONArray;
 import org.json.JSONException;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.PackageManager;
+import org.json.JSONObject;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 
 public class DedroidWeb {
     static public class WebPage {
@@ -141,7 +146,7 @@ public class DedroidWeb {
 
                                 @Override
                                 public void onClick(EditText et) {
-                                    webView.loadUrl("javascript:" + callback + "(" + symbo + ",true,\"" + et.getText().toString() + "\")");
+                                    webView.loadUrl("javascript:" + callback + "(" + symbo + ",true,\"" + et.getText().toString().replace("\"","\\\"") + "\")");
                                 }
 
 
@@ -149,7 +154,7 @@ public class DedroidWeb {
 
                                 @Override
                                 public void onClick(EditText et) {
-                                    webView.loadUrl("javascript:" + callback + "(" + symbo + ",false,\"" + et.getText().toString() + "\")");
+                                    webView.loadUrl("javascript:" + callback + "(" + symbo + ",false,\"" + et.getText().toString().replace("\"","\\\"")  + "\")");
                                 }
 
 
@@ -217,6 +222,21 @@ public class DedroidWeb {
         @JavascriptInterface
         public boolean isAppInstalled(String pkg) {
             return Dedroid.isAppInstalled(_context, pkg);
+        }
+        @JavascriptInterface
+        public String getApps() {
+            return new JSONArray(DedroidPackage.getApps(_context,false)).toString();
+        }
+        @JavascriptInterface
+        public String getAppInfo(String pkg) throws JSONException, PackageManager.NameNotFoundException{
+            JSONObject json=new JSONObject();
+            PackageManager pm=_context.getPackageManager();
+            PackageInfo pi=DedroidPackage.getAppInfo(_context,pkg);
+            ApplicationInfo ai=pm.getApplicationInfo(pi.packageName,0);
+            json.put("name",ai.loadLabel(pm));
+            json.put("version_name",pi.versionName);
+            json.put("version_code",pi.versionCode);
+            return json.toString();
         }
         @JavascriptInterface
         public void launchApp(String pkg) {

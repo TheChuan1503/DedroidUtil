@@ -20,7 +20,7 @@ import android.view.Window;
 
 public class Dedroid {
 
-    final private static int UtilVersion=8;
+    final private static int UtilVersion=9;
 
     static public int getVersion() {
         return UtilVersion;
