@@ -1,5 +1,5 @@
 # DedroidUtil
-Lightweight and fast AndroidJAVA utils
+轻量级和快速的Android Java工具库
 
-Jar&Dex Releases:
-[https://www.123pan.com/s/zaQKVv-VpZK3.html](https://www.123pan.com/s/zaQKVv-VpZK3.html)
+### 第三方库
+- 无
